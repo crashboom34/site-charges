@@ -1,48 +1,270 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const tableBody = document.getElementById('charges-table');
-  const form = document.getElementById('charge-form');
-  const typeInput = document.getElementById('type');
-  const amountInput = document.getElementById('amount');
-  const totalCell = document.getElementById('total-cell');
+const chargesSalariales = 0.23;
+const chargesPatronales = 0.42;
 
-  function updateTotal() {
-    let total = 0;
-    tableBody.querySelectorAll('tr').forEach(row => {
-      const amountText = row.querySelector('td:nth-child(2)').textContent;
-      const value = parseFloat(amountText);
-      if (!isNaN(value)) total += value;
-    });
-    totalCell.textContent = `${total.toFixed(2)} €`;
-  }
+function calculateEmployerCost(net) {
+  const brut = net / (1 - chargesSalariales);
+  const employer = brut * (1 + chargesPatronales);
+  const charges = employer - brut;
+  return { brut, employer, charges };
+}
 
-  function addRow(type, amount) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${type}</td><td>${amount.toFixed(2)} €</td><td><button class="delete">Supprimer</button></td>`;
-    tableBody.appendChild(tr);
-  }
+function ChantierForm({ onAdd }) {
+  const [name, setName] = React.useState('');
+  const [overhead, setOverhead] = React.useState(10);
+  const [sale, setSale] = React.useState('');
 
-  form.addEventListener('submit', e => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const type = typeInput.value.trim();
-    const amount = parseFloat(amountInput.value);
-    if (type && !isNaN(amount)) {
-      addRow(type, amount);
-      updateTotal();
-      form.reset();
-    }
+    if (!name) return;
+    onAdd({
+      id: Date.now(),
+      name,
+      overhead: parseFloat(overhead) || 0,
+      sale: sale ? parseFloat(sale) : null,
+      workers: [],
+      materials: [],
+    });
+    setName('');
+    setOverhead(10);
+    setSale('');
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow rounded">
+      <h2 className="text-xl font-bold mb-2">Ajouter un chantier</h2>
+      <div className="flex flex-wrap gap-2">
+        <input className="border p-2 flex-1" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom du chantier" required />
+        <input type="number" className="border p-2 w-32" value={overhead} onChange={(e) => setOverhead(e.target.value)} placeholder="Frais généraux %" />
+        <input type="number" className="border p-2 w-32" value={sale} onChange={(e) => setSale(e.target.value)} placeholder="Prix de vente" />
+        <button className="bg-blue-500 text-white px-4 py-2">Ajouter</button>
+      </div>
+    </form>
+  );
+}
+
+function WorkerForm({ chantiers, onAdd }) {
+  const [chantierId, setChantierId] = React.useState('');
+  const [name, setName] = React.useState('');
+  const [net, setNet] = React.useState('');
+  const [hours, setHours] = React.useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const netVal = parseFloat(net);
+    const hoursVal = parseFloat(hours);
+    if (!chantierId || !name || isNaN(netVal) || isNaN(hoursVal)) return;
+    onAdd(parseInt(chantierId), { name, net: netVal, hours: hoursVal });
+    setName('');
+    setNet('');
+    setHours('');
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow rounded">
+      <h2 className="text-xl font-bold mb-2">Ajouter un salarié</h2>
+      <div className="flex flex-wrap gap-2">
+        <select className="border p-2" value={chantierId} onChange={(e) => setChantierId(e.target.value)} required>
+          <option value="">Chantier</option>
+          {chantiers.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+        <input className="border p-2" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom" required />
+        <input type="number" className="border p-2 w-32" value={net} onChange={(e) => setNet(e.target.value)} placeholder="Net €/h" required />
+        <input type="number" className="border p-2 w-32" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="Heures" required />
+        <button className="bg-green-500 text-white px-4 py-2">Ajouter</button>
+      </div>
+    </form>
+  );
+}
+
+function MaterialForm({ chantiers, onAdd }) {
+  const [chantierId, setChantierId] = React.useState('');
+  const [name, setName] = React.useState('');
+  const [price, setPrice] = React.useState('');
+  const [quantity, setQuantity] = React.useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const priceVal = parseFloat(price);
+    const qtyVal = parseFloat(quantity);
+    if (!chantierId || !name || isNaN(priceVal) || isNaN(qtyVal)) return;
+    onAdd(parseInt(chantierId), { name, price: priceVal, quantity: qtyVal });
+    setName('');
+    setPrice('');
+    setQuantity('');
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow rounded">
+      <h2 className="text-xl font-bold mb-2">Ajouter un matériau</h2>
+      <div className="flex flex-wrap gap-2">
+        <select className="border p-2" value={chantierId} onChange={(e) => setChantierId(e.target.value)} required>
+          <option value="">Chantier</option>
+          {chantiers.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+        <input className="border p-2" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom" required />
+        <input type="number" className="border p-2 w-32" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Prix" required />
+        <input type="number" className="border p-2 w-32" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="Quantité" required />
+        <button className="bg-purple-500 text-white px-4 py-2">Ajouter</button>
+      </div>
+    </form>
+  );
+}
+
+function Chantier({ chantier, onExportPDF, onExportCSV }) {
+  const workerCost = chantier.workers.reduce((s, w) => s + w.total, 0);
+  const materialsCost = chantier.materials.reduce((s, m) => s + m.total, 0);
+  const subtotal = workerCost + materialsCost;
+  const total = subtotal * (1 + chantier.overhead / 100);
+  const margin = chantier.sale != null ? chantier.sale - total : null;
+  const canvasRef = React.useRef(null);
+  const chartRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const ctx = canvasRef.current.getContext('2d');
+    if (chartRef.current) chartRef.current.destroy();
+    chartRef.current = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Main d\'oeuvre', 'Matériaux', 'Frais généraux'],
+        datasets: [{
+          label: '€',
+          data: [workerCost, materialsCost, total - subtotal],
+          backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
+        }],
+      },
+    });
+  }, [workerCost, materialsCost, total]);
+
+  return (
+    <div className="mb-8 p-4 bg-white shadow rounded">
+      <h3 className="text-lg font-bold">{chantier.name}</h3>
+      <p className="mb-2">Frais généraux: {chantier.overhead}%</p>
+      <table className="w-full mb-4 text-sm">
+        <thead>
+          <tr className="bg-gray-200"><th className="p-1">Type</th><th className="p-1">Détails</th><th className="p-1">Total €</th></tr>
+        </thead>
+        <tbody>
+          {chantier.workers.map((w, i) => (
+            <tr key={'w'+i}>
+              <td className="p-1">Salarié</td>
+              <td className="p-1">{w.name} - Net: {w.net.toFixed(2)} €/h, Brut: {w.brut.toFixed(2)} €, Charges: {w.charges.toFixed(2)} €, Coût: {w.employer.toFixed(2)} €/h x {w.hours}h</td>
+              <td className="p-1">{w.total.toFixed(2)}</td>
+            </tr>
+          ))}
+          {chantier.materials.map((m, i) => (
+            <tr key={'m'+i}>
+              <td className="p-1">Matériau</td>
+              <td className="p-1">{m.name} ({m.quantity} x {m.price.toFixed(2)} €)</td>
+              <td className="p-1">{m.total.toFixed(2)}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr className="font-bold"><td className="p-1">Total M.O.</td><td></td><td className="p-1">{workerCost.toFixed(2)}</td></tr>
+          <tr className="font-bold"><td className="p-1">Total Matériaux</td><td></td><td className="p-1">{materialsCost.toFixed(2)}</td></tr>
+          <tr className="font-bold"><td className="p-1">Sous-total</td><td></td><td className="p-1">{subtotal.toFixed(2)}</td></tr>
+          <tr className="font-bold"><td className="p-1">Total avec frais généraux</td><td></td><td className="p-1">{total.toFixed(2)}</td></tr>
+          {margin !== null && <tr className="font-bold"><td className="p-1">Marge brute</td><td></td><td className="p-1">{margin.toFixed(2)}</td></tr>}
+        </tfoot>
+      </table>
+      <div className="mb-2">
+        <canvas ref={canvasRef} height="80"></canvas>
+      </div>
+      <button onClick={onExportPDF} className="bg-blue-500 text-white px-2 py-1 mr-2">Export PDF</button>
+      <button onClick={onExportCSV} className="bg-yellow-500 text-white px-2 py-1">Export CSV</button>
+    </div>
+  );
+}
+
+function App() {
+  const [chantiers, setChantiers] = React.useState(() => {
+    const saved = localStorage.getItem('chantiers');
+    return saved ? JSON.parse(saved) : [];
   });
 
-  tableBody.addEventListener('click', e => {
-    if (e.target.classList.contains('delete')) {
-      e.target.closest('tr').remove();
-      updateTotal();
-    } else if (e.target.tagName === 'TD') {
-      const row = e.target.parentElement;
-      tableBody.querySelectorAll('tr').forEach(r => r.classList.remove('active'));
-      row.classList.add('active');
-    }
-  });
+  React.useEffect(() => {
+    localStorage.setItem('chantiers', JSON.stringify(chantiers));
+  }, [chantiers]);
 
-  updateTotal();
-});
+  const addChantier = (chantier) => setChantiers([...chantiers, chantier]);
 
+  const addWorker = (chantierId, worker) => {
+    setChantiers(chantiers.map(c => {
+      if (c.id !== chantierId) return c;
+      const { brut, employer, charges } = calculateEmployerCost(worker.net);
+      const total = employer * worker.hours;
+      const newWorker = { ...worker, brut, employer, charges, total };
+      return { ...c, workers: [...c.workers, newWorker] };
+    }));
+  };
+
+  const addMaterial = (chantierId, material) => {
+    setChantiers(chantiers.map(c => {
+      if (c.id !== chantierId) return c;
+      const total = material.price * material.quantity;
+      const newMaterial = { ...material, total };
+      return { ...c, materials: [...c.materials, newMaterial] };
+    }));
+  };
+
+  const exportPDF = (chantier) => {
+    const { jsPDF } = window.jspdf;
+    const workerCost = chantier.workers.reduce((s, w) => s + w.total, 0);
+    const materialsCost = chantier.materials.reduce((s, m) => s + m.total, 0);
+    const subtotal = workerCost + materialsCost;
+    const total = subtotal * (1 + chantier.overhead / 100);
+    const margin = chantier.sale != null ? chantier.sale - total : null;
+    const doc = new jsPDF();
+    let y = 10;
+    doc.text(`Chantier: ${chantier.name}`, 10, y); y += 10;
+    chantier.workers.forEach(w => { doc.text(`Salarié ${w.name}: ${w.total.toFixed(2)} €`, 10, y); y += 8; });
+    chantier.materials.forEach(m => { doc.text(`Matériau ${m.name}: ${m.total.toFixed(2)} €`, 10, y); y += 8; });
+    doc.text(`Total M.O.: ${workerCost.toFixed(2)} €`, 10, y); y += 8;
+    doc.text(`Total Matériaux: ${materialsCost.toFixed(2)} €`, 10, y); y += 8;
+    doc.text(`Total avec frais généraux: ${total.toFixed(2)} €`, 10, y); y += 8;
+    if (margin !== null) { doc.text(`Marge brute: ${margin.toFixed(2)} €`, 10, y); }
+    doc.save(`${chantier.name}.pdf`);
+  };
+
+  const exportCSV = (chantier) => {
+    const workerCost = chantier.workers.reduce((s, w) => s + w.total, 0);
+    const materialsCost = chantier.materials.reduce((s, m) => s + m.total, 0);
+    const subtotal = workerCost + materialsCost;
+    const total = subtotal * (1 + chantier.overhead / 100);
+    const margin = chantier.sale != null ? chantier.sale - total : null;
+    let rows = [];
+    chantier.workers.forEach(w => rows.push(['Salarie', w.name, w.total.toFixed(2)]));
+    chantier.materials.forEach(m => rows.push(['Materiau', m.name, m.total.toFixed(2)]));
+    rows.push(['Total MO', '', workerCost.toFixed(2)]);
+    rows.push(['Total Materiaux', '', materialsCost.toFixed(2)]);
+    rows.push(['Total avec FG', '', total.toFixed(2)]);
+    if (margin !== null) rows.push(['Marge brute', '', margin.toFixed(2)]);
+    const csvContent = rows.map(r => r.join(';')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${chantier.name}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Calculateur de coûts BTP</h1>
+      <ChantierForm onAdd={addChantier} />
+      <WorkerForm chantiers={chantiers} onAdd={addWorker} />
+      <MaterialForm chantiers={chantiers} onAdd={addMaterial} />
+      {chantiers.map(c => (
+        <Chantier key={c.id} chantier={c} onExportPDF={() => exportPDF(c)} onExportCSV={() => exportCSV(c)} />
+      ))}
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
