@@ -603,6 +603,10 @@ function App() {
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(<App />);
+  if (ReactDOM.createRoot) {
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+  } else {
+    ReactDOM.render(<App />, rootElement);
+  }
 }
