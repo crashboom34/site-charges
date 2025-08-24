@@ -3,47 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestion des charges</title>
+  <title>Calculateur de coûts BTP</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-  <header>
-    <h1>Gestion des charges</h1>
-    <nav>
-      <a href="#home">Accueil</a>
-      <a href="#charges">Charges</a>
-    </nav>
-  </header>
-  <main>
-    <section id="home" class="intro">
-      <h2>Bienvenue</h2>
-      <p>Gérez facilement vos charges grâce à cette interface moderne.</p>
-    </section>
-    <section id="charges">
-      <h2>Charges du mois</h2>
-      <form id="charge-form">
-        <input type="text" id="type" placeholder="Type de charge" required />
-        <input type="number" id="amount" placeholder="Montant" required />
-        <button type="submit">Ajouter</button>
-      </form>
-      <table>
-        <thead>
-          <tr><th>Type</th><th>Montant</th><th>Action</th></tr>
-        </thead>
-        <tbody id="charges-table">
-          <tr><td>Eau</td><td>30 €</td><td><button class="delete">Supprimer</button></td></tr>
-          <tr><td>Électricité</td><td>50 €</td><td><button class="delete">Supprimer</button></td></tr>
-          <tr><td>Internet</td><td>25 €</td><td><button class="delete">Supprimer</button></td></tr>
-        </tbody>
-        <tfoot>
-          <tr><td>Total</td><td id="total-cell" colspan="2"></td></tr>
-        </tfoot>
-      </table>
-    </section>
-  </main>
-  <footer>
-    <p>&copy; 2024 Gestion des charges</p>
-  </footer>
-  <script src="app.js"></script>
+<body class="bg-gray-100">
+  <div id="root"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.21.2/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="app.js" type="text/babel"></script>
 </body>
 </html>

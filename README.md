@@ -1,12 +1,14 @@
-# Site Charges
+# Calculateur de coûts BTP
 
-Site statique de démonstration pour gérer les charges. Le design est moderne, responsive et intuitif.
+Application web one-page permettant de suivre les coûts de main d'œuvre et de matériaux par chantier.
 
 ## Utilisation
 
 1. Ouvrez `index.html` dans votre navigateur.
-2. Ajoutez une charge via le formulaire et observez la mise à jour du total.
-3. Cliquez sur une ligne du tableau pour la mettre en surbrillance ou utilisez le bouton **Supprimer** pour l'enlever.
+2. Ajoutez un chantier puis renseignez les salariés et les matériaux associés.
+3. Les coûts sont calculés automatiquement (salaire net → brut → charges → coût employeur).
+4. Chaque chantier affiche un récapitulatif détaillé avec possibilité d'export PDF ou CSV.
+5. Les données sont conservées temporairement dans le `localStorage` du navigateur.
 
 ## Développement
 
