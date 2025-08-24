@@ -99,6 +99,7 @@ function ChantierForm({ chantiers, onAdd }) {
   const [name, setName] = React.useState('');
   const [overhead, setOverhead] = React.useState(10);
   const [sale, setSale] = React.useState('');
+  const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
 
   const duplicate = React.useMemo(
     () => chantiers.some((c) => c.name.toLowerCase() === name.toLowerCase()),
@@ -108,6 +109,12 @@ function ChantierForm({ chantiers, onAdd }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name || duplicate) return;
+    const formattedDate = new Date(date).toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
     onAdd({
       id: Date.now(),
       name,
@@ -115,13 +122,15 @@ function ChantierForm({ chantiers, onAdd }) {
       sale: sale ? parseFloat(sale) : null,
       workers: [],
       materials: [],
+      date: formattedDate,
     });
     setName('');
     setOverhead(10);
     setSale('');
+    setDate(new Date().toISOString().split('T')[0]);
   };
 
-  const isValid = name && !duplicate;
+  const isValid = name && !duplicate && date;
 
   return (
     <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow-lg rounded-lg">
@@ -150,6 +159,13 @@ function ChantierForm({ chantiers, onAdd }) {
           onChange={(e) => setSale(e.target.value)}
           placeholder="Prix de vente"
         />
+        <input
+          type="date"
+          className="border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          required
+        />
         <button
           disabled={!isValid}
           className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow transition-colors ${!isValid ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -169,6 +185,7 @@ function WorkerForm({ chantiers, onAdd }) {
   const [name, setName] = React.useState('');
   const [net, setNet] = React.useState('');
   const [hours, setHours] = React.useState('');
+  const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
 
   const netVal = parseFloat(net);
   const hoursVal = parseFloat(hours);
@@ -183,13 +200,14 @@ function WorkerForm({ chantiers, onAdd }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!chantierId || !name || isNaN(netVal) || isNaN(hoursVal)) return;
-    onAdd(parseInt(chantierId), { name, net: netVal, hours: hoursVal });
+    onAdd(parseInt(chantierId), { name, net: netVal, hours: hoursVal, date });
     setName('');
     setNet('');
     setHours('');
+    setDate(new Date().toISOString().split('T')[0]);
   };
 
-  const isValid = chantierId && name && !isNaN(netVal) && !isNaN(hoursVal);
+  const isValid = chantierId && name && !isNaN(netVal) && !isNaN(hoursVal) && date;
 
   return (
     <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow-lg rounded-lg">
@@ -218,6 +236,13 @@ function WorkerForm({ chantiers, onAdd }) {
             placeholder="Heures sur chantier"
             required
           />
+        <input
+          type="date"
+          className="border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          required
+        />
         <button
           disabled={!isValid}
           className={`bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded shadow transition-colors ${!isValid ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -239,6 +264,7 @@ function MaterialForm({ chantiers, onAdd }) {
   const [name, setName] = React.useState('');
   const [price, setPrice] = React.useState('');
   const [quantity, setQuantity] = React.useState('');
+  const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
 
   const priceVal = parseFloat(price);
   const qtyVal = parseFloat(quantity);
@@ -248,13 +274,14 @@ function MaterialForm({ chantiers, onAdd }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!chantierId || !name || isNaN(priceVal) || isNaN(qtyVal)) return;
-    onAdd(parseInt(chantierId), { name, price: priceVal, quantity: qtyVal });
+    onAdd(parseInt(chantierId), { name, price: priceVal, quantity: qtyVal, date });
     setName('');
     setPrice('');
     setQuantity('');
+    setDate(new Date().toISOString().split('T')[0]);
   };
 
-  const isValid = chantierId && name && !isNaN(priceVal) && !isNaN(qtyVal);
+  const isValid = chantierId && name && !isNaN(priceVal) && !isNaN(qtyVal) && date;
 
   return (
     <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow-lg rounded-lg">
@@ -283,6 +310,13 @@ function MaterialForm({ chantiers, onAdd }) {
           placeholder="Quantité"
           required
         />
+        <input
+          type="date"
+          className="border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          required
+        />
         <button
           disabled={!isValid}
           className={`bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded shadow transition-colors ${!isValid ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -297,7 +331,7 @@ function MaterialForm({ chantiers, onAdd }) {
   );
 }
 
-function Chantier({ chantier, onExportPDF, onExportCSV }) {
+function Chantier({ chantier, onExportPDF, onExportCSV, onDeleteChantier, onEditChantier, onDeleteWorker, onEditWorker, onDeleteMaterial, onEditMaterial }) {
   const workerCost = chantier.workers.reduce((s, w) => s + w.total, 0);
   const materialsCost = chantier.materials.reduce((s, m) => s + m.total, 0);
   const subtotal = workerCost + materialsCost;
@@ -324,34 +358,51 @@ function Chantier({ chantier, onExportPDF, onExportCSV }) {
 
   return (
     <div className="mb-8 p-4 bg-white shadow-lg rounded-lg">
-      <h3 className="text-lg font-bold">{chantier.name}</h3>
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-lg font-bold">{chantier.name}</h3>
+          <p className="text-sm text-gray-600">Ajouté le {chantier.date}</p>
+        </div>
+        <div>
+          <button onClick={onEditChantier} className="text-blue-500 mr-2">Modifier</button>
+          <button onClick={onDeleteChantier} className="text-red-500">Supprimer</button>
+        </div>
+      </div>
       <p className="mb-2">Frais généraux: {chantier.overhead}%</p>
       <table className="w-full mb-4 text-sm border border-gray-200 rounded-lg overflow-hidden">
         <thead>
-          <tr className="bg-gray-100 text-left"><th className="p-1">Type</th><th className="p-1">Détails</th><th className="p-1">Total €</th></tr>
+          <tr className="bg-gray-100 text-left"><th className="p-1">Type</th><th className="p-1">Détails</th><th className="p-1">Total €</th><th className="p-1">Actions</th></tr>
         </thead>
         <tbody>
           {chantier.workers.map((w, i) => (
             <tr key={'w'+i}>
               <td className="p-1">Salarié</td>
-              <td className="p-1">{w.name} - Net: {w.net.toFixed(2)} €/mois, Brut: {w.brut.toFixed(2)} €, Charges: {w.charges.toFixed(2)} €, Coût employeur: {w.employer.toFixed(2)} €/mois ({(w.employer / hoursPerMonth).toFixed(2)} €/h x {w.hours}h)</td>
+              <td className="p-1">{w.name} - Net: {w.net.toFixed(2)} €/mois, Brut: {w.brut.toFixed(2)} €, Charges: {w.charges.toFixed(2)} €, Coût employeur: {w.employer.toFixed(2)} €/mois ({(w.employer / hoursPerMonth).toFixed(2)} €/h x {w.hours}h) - Ajouté le {w.date}</td>
               <td className="p-1">{w.total.toFixed(2)}</td>
+              <td className="p-1">
+                <button onClick={() => onEditWorker(i)} className="text-blue-500 mr-1">Modifier</button>
+                <button onClick={() => onDeleteWorker(i)} className="text-red-500">Supprimer</button>
+              </td>
             </tr>
           ))}
           {chantier.materials.map((m, i) => (
             <tr key={'m'+i}>
               <td className="p-1">Matériau</td>
-              <td className="p-1">{m.name} ({m.quantity} x {m.price.toFixed(2)} €)</td>
+              <td className="p-1">{m.name} ({m.quantity} x {m.price.toFixed(2)} €) - Ajouté le {m.date}</td>
               <td className="p-1">{m.total.toFixed(2)}</td>
+              <td className="p-1">
+                <button onClick={() => onEditMaterial(i)} className="text-blue-500 mr-1">Modifier</button>
+                <button onClick={() => onDeleteMaterial(i)} className="text-red-500">Supprimer</button>
+              </td>
             </tr>
           ))}
         </tbody>
         <tfoot>
-          <tr className="font-bold"><td className="p-1">Total M.O.</td><td></td><td className="p-1">{workerCost.toFixed(2)}</td></tr>
-          <tr className="font-bold"><td className="p-1">Total Matériaux</td><td></td><td className="p-1">{materialsCost.toFixed(2)}</td></tr>
-          <tr className="font-bold"><td className="p-1">Sous-total</td><td></td><td className="p-1">{subtotal.toFixed(2)}</td></tr>
-          <tr className="font-bold"><td className="p-1">Total avec frais généraux</td><td></td><td className="p-1">{total.toFixed(2)}</td></tr>
-          {margin !== null && <tr className="font-bold"><td className="p-1">Marge brute</td><td></td><td className="p-1">{margin.toFixed(2)}</td></tr>}
+          <tr className="font-bold"><td className="p-1">Total M.O.</td><td></td><td className="p-1">{workerCost.toFixed(2)}</td><td></td></tr>
+          <tr className="font-bold"><td className="p-1">Total Matériaux</td><td></td><td className="p-1">{materialsCost.toFixed(2)}</td><td></td></tr>
+          <tr className="font-bold"><td className="p-1">Sous-total</td><td></td><td className="p-1">{subtotal.toFixed(2)}</td><td></td></tr>
+          <tr className="font-bold"><td className="p-1">Total avec frais généraux</td><td></td><td className="p-1">{total.toFixed(2)}</td><td></td></tr>
+          {margin !== null && <tr className="font-bold"><td className="p-1">Marge brute</td><td></td><td className="p-1">{margin.toFixed(2)}</td><td></td></tr>}
         </tfoot>
       </table>
       <div className="mb-2">
@@ -380,7 +431,13 @@ function App() {
       if (c.id !== chantierId) return c;
       const { brut, employer, charges } = calculateEmployerCost(worker.net);
       const total = (employer / hoursPerMonth) * worker.hours;
-      const newWorker = { ...worker, brut, employer, charges, total };
+      const formattedDate = new Date(worker.date).toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+      const newWorker = { ...worker, date: formattedDate, brut, employer, charges, total };
       return { ...c, workers: [...c.workers, newWorker] };
     }));
   };
@@ -389,8 +446,89 @@ function App() {
     setChantiers(chantiers.map(c => {
       if (c.id !== chantierId) return c;
       const total = material.price * material.quantity;
-      const newMaterial = { ...material, total };
+      const formattedDate = new Date(material.date).toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+      const newMaterial = { ...material, date: formattedDate, total };
       return { ...c, materials: [...c.materials, newMaterial] };
+    }));
+  };
+
+  const deleteChantier = (id) => {
+    setChantiers(chantiers.filter(c => c.id !== id));
+  };
+
+  const editChantier = (id) => {
+    const c = chantiers.find(ch => ch.id === id);
+    const name = prompt('Nom du chantier', c.name);
+    if (!name) return;
+    const overhead = parseFloat(prompt('Frais généraux (%)', c.overhead));
+    const saleInput = prompt('Prix de vente', c.sale != null ? c.sale : '');
+    setChantiers(chantiers.map(ch =>
+      ch.id === id
+        ? {
+            ...ch,
+            name,
+            overhead: isNaN(overhead) ? ch.overhead : overhead,
+            sale: saleInput ? parseFloat(saleInput) : null,
+          }
+        : ch
+    ));
+  };
+
+  const deleteWorker = (chantierId, index) => {
+    setChantiers(chantiers.map(c => {
+      if (c.id !== chantierId) return c;
+      const workers = c.workers.filter((_, i) => i !== index);
+      return { ...c, workers };
+    }));
+  };
+
+  const editWorker = (chantierId, index) => {
+    const chantier = chantiers.find(c => c.id === chantierId);
+    const w = chantier.workers[index];
+    const name = prompt('Nom du salarié', w.name);
+    if (!name) return;
+    const net = parseFloat(prompt('Net €/mois', w.net));
+    const hours = parseFloat(prompt('Heures sur chantier', w.hours));
+    if (isNaN(net) || isNaN(hours)) return;
+    const { brut, employer, charges } = calculateEmployerCost(net);
+    const total = (employer / hoursPerMonth) * hours;
+    setChantiers(chantiers.map(c => {
+      if (c.id !== chantierId) return c;
+      const workers = c.workers.map((wk, i) =>
+        i === index ? { ...wk, name, net, hours, brut, employer, charges, total } : wk
+      );
+      return { ...c, workers };
+    }));
+  };
+
+  const deleteMaterial = (chantierId, index) => {
+    setChantiers(chantiers.map(c => {
+      if (c.id !== chantierId) return c;
+      const materials = c.materials.filter((_, i) => i !== index);
+      return { ...c, materials };
+    }));
+  };
+
+  const editMaterial = (chantierId, index) => {
+    const chantier = chantiers.find(c => c.id === chantierId);
+    const m = chantier.materials[index];
+    const name = prompt('Nom du matériau', m.name);
+    if (!name) return;
+    const price = parseFloat(prompt('Prix', m.price));
+    const quantity = parseFloat(prompt('Quantité', m.quantity));
+    if (isNaN(price) || isNaN(quantity)) return;
+    const total = price * quantity;
+    setChantiers(chantiers.map(c => {
+      if (c.id !== chantierId) return c;
+      const materials = c.materials.map((mat, i) =>
+        i === index ? { ...mat, name, price, quantity, total } : mat
+      );
+      return { ...c, materials };
     }));
   };
 
@@ -446,7 +584,18 @@ function App() {
       <WorkerForm chantiers={chantiers} onAdd={addWorker} />
       <MaterialForm chantiers={chantiers} onAdd={addMaterial} />
       {chantiers.map(c => (
-        <Chantier key={c.id} chantier={c} onExportPDF={() => exportPDF(c)} onExportCSV={() => exportCSV(c)} />
+        <Chantier
+          key={c.id}
+          chantier={c}
+          onExportPDF={() => exportPDF(c)}
+          onExportCSV={() => exportCSV(c)}
+          onDeleteChantier={() => deleteChantier(c.id)}
+          onEditChantier={() => editChantier(c.id)}
+          onDeleteWorker={(i) => deleteWorker(c.id, i)}
+          onEditWorker={(i) => editWorker(c.id, i)}
+          onDeleteMaterial={(i) => deleteMaterial(c.id, i)}
+          onEditMaterial={(i) => editMaterial(c.id, i)}
+        />
       ))}
     </div>
   );
