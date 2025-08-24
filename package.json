@@ -1,0 +1,10 @@
+{
+  "name": "site-charges",
+  "version": "1.0.0",
+  "description": "Site statique de gestion des charges.",
+  "scripts": {
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "author": "",
+  "license": "ISC"
+}
