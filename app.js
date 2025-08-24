@@ -93,14 +93,19 @@ function Overview({ chantiers }) {
   );
 }
 
-function ChantierForm({ onAdd }) {
+function ChantierForm({ chantiers, onAdd }) {
   const [name, setName] = React.useState('');
   const [overhead, setOverhead] = React.useState(10);
   const [sale, setSale] = React.useState('');
 
+  const duplicate = React.useMemo(
+    () => chantiers.some((c) => c.name.toLowerCase() === name.toLowerCase()),
+    [chantiers, name]
+  );
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name) return;
+    if (!name || duplicate) return;
     onAdd({
       id: Date.now(),
       name,
@@ -114,15 +119,45 @@ function ChantierForm({ onAdd }) {
     setSale('');
   };
 
+  const isValid = name && !duplicate;
+
   return (
     <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow-lg rounded-lg">
       <h2 className="text-xl font-bold mb-2">Ajouter un chantier</h2>
       <div className="flex flex-wrap gap-2">
-        <input className="border border-gray-300 rounded p-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom du chantier" required />
-        <input type="number" className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" value={overhead} onChange={(e) => setOverhead(e.target.value)} placeholder="Frais généraux %" />
-        <input type="number" className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" value={sale} onChange={(e) => setSale(e.target.value)} placeholder="Prix de vente" />
-        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow transition-colors">Ajouter</button>
+        <input
+          className="border border-gray-300 rounded p-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Nom du chantier"
+          required
+        />
+        <input
+          type="number"
+          className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={overhead}
+          min="0"
+          step="0.1"
+          onChange={(e) => setOverhead(e.target.value)}
+          placeholder="Frais généraux %"
+        />
+        <input
+          type="number"
+          className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={sale}
+          onChange={(e) => setSale(e.target.value)}
+          placeholder="Prix de vente"
+        />
+        <button
+          disabled={!isValid}
+          className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow transition-colors ${!isValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          Ajouter
+        </button>
       </div>
+      {duplicate && (
+        <p className="text-red-600 text-sm mt-2">Un chantier avec ce nom existe déjà.</p>
+      )}
     </form>
   );
 }
@@ -133,16 +168,26 @@ function WorkerForm({ chantiers, onAdd }) {
   const [net, setNet] = React.useState('');
   const [hours, setHours] = React.useState('');
 
+  const netVal = parseFloat(net);
+  const hoursVal = parseFloat(hours);
+
+  const preview = React.useMemo(() => {
+    if (isNaN(netVal) || isNaN(hoursVal)) return null;
+    const { brut, employer, charges } = calculateEmployerCost(netVal);
+    const total = employer * hoursVal;
+    return { brut, employer, charges, total };
+  }, [netVal, hoursVal]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const netVal = parseFloat(net);
-    const hoursVal = parseFloat(hours);
     if (!chantierId || !name || isNaN(netVal) || isNaN(hoursVal)) return;
     onAdd(parseInt(chantierId), { name, net: netVal, hours: hoursVal });
     setName('');
     setNet('');
     setHours('');
   };
+
+  const isValid = chantierId && name && !isNaN(netVal) && !isNaN(hoursVal);
 
   return (
     <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow-lg rounded-lg">
@@ -155,10 +200,34 @@ function WorkerForm({ chantiers, onAdd }) {
           ))}
         </select>
         <input className="border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom" required />
-        <input type="number" className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" value={net} onChange={(e) => setNet(e.target.value)} placeholder="Net €/h" required />
-        <input type="number" className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="Heures" required />
-        <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded shadow transition-colors">Ajouter</button>
+        <input
+          type="number"
+          className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={net}
+          onChange={(e) => setNet(e.target.value)}
+          placeholder="Net €/h"
+          required
+        />
+        <input
+          type="number"
+          className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={hours}
+          onChange={(e) => setHours(e.target.value)}
+          placeholder="Heures"
+          required
+        />
+        <button
+          disabled={!isValid}
+          className={`bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded shadow transition-colors ${!isValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          Ajouter
+        </button>
       </div>
+      {preview && (
+        <p className="text-sm mt-2 text-gray-700">
+          Brut: {preview.brut.toFixed(2)} € - Charges: {preview.charges.toFixed(2)} € - Coût total: {preview.total.toFixed(2)} €
+        </p>
+      )}
     </form>
   );
 }
@@ -169,16 +238,21 @@ function MaterialForm({ chantiers, onAdd }) {
   const [price, setPrice] = React.useState('');
   const [quantity, setQuantity] = React.useState('');
 
+  const priceVal = parseFloat(price);
+  const qtyVal = parseFloat(quantity);
+
+  const total = !isNaN(priceVal) && !isNaN(qtyVal) ? priceVal * qtyVal : null;
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const priceVal = parseFloat(price);
-    const qtyVal = parseFloat(quantity);
     if (!chantierId || !name || isNaN(priceVal) || isNaN(qtyVal)) return;
     onAdd(parseInt(chantierId), { name, price: priceVal, quantity: qtyVal });
     setName('');
     setPrice('');
     setQuantity('');
   };
+
+  const isValid = chantierId && name && !isNaN(priceVal) && !isNaN(qtyVal);
 
   return (
     <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow-lg rounded-lg">
@@ -191,10 +265,32 @@ function MaterialForm({ chantiers, onAdd }) {
           ))}
         </select>
         <input className="border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom" required />
-        <input type="number" className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Prix" required />
-        <input type="number" className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="Quantité" required />
-        <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded shadow transition-colors">Ajouter</button>
+        <input
+          type="number"
+          className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="Prix"
+          required
+        />
+        <input
+          type="number"
+          className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+          placeholder="Quantité"
+          required
+        />
+        <button
+          disabled={!isValid}
+          className={`bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded shadow transition-colors ${!isValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          Ajouter
+        </button>
       </div>
+      {total !== null && (
+        <p className="text-sm mt-2 text-gray-700">Coût total: {total.toFixed(2)} €</p>
+      )}
     </form>
   );
 }
@@ -344,7 +440,7 @@ function App() {
       <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Calculateur de coûts BTP</h1>
       <InfoPanel />
       <Overview chantiers={chantiers} />
-      <ChantierForm onAdd={addChantier} />
+      <ChantierForm chantiers={chantiers} onAdd={addChantier} />
       <WorkerForm chantiers={chantiers} onAdd={addWorker} />
       <MaterialForm chantiers={chantiers} onAdd={addMaterial} />
       {chantiers.map(c => (

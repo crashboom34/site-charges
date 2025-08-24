@@ -10,7 +10,7 @@ utilisés. Cela offre aux entreprises du BTP une vision synthétique de leurs co
 
 1. Ouvrez `index.html` dans votre navigateur.
 2. Ajoutez un chantier puis renseignez les salariés et les matériaux associés.
-3. Les coûts sont calculés automatiquement (salaire net → brut → charges → coût employeur).
+3. Les formulaires d'ajout affichent désormais en direct les coûts calculés avant validation.
 4. Chaque chantier affiche un récapitulatif détaillé avec possibilité d'export PDF ou CSV.
 5. Les données sont conservées temporairement dans le `localStorage` du navigateur.
 
