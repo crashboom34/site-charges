@@ -1,5 +1,7 @@
 const chargesSalariales = 0.23;
 const chargesPatronales = 0.42;
+// Nombre d'heures de travail standard dans un mois (35h/semaine)
+const hoursPerMonth = 151.67;
 
 function calculateEmployerCost(net) {
   const brut = net / (1 - chargesSalariales);
@@ -174,7 +176,7 @@ function WorkerForm({ chantiers, onAdd }) {
   const preview = React.useMemo(() => {
     if (isNaN(netVal) || isNaN(hoursVal)) return null;
     const { brut, employer, charges } = calculateEmployerCost(netVal);
-    const total = employer * hoursVal;
+    const total = (employer / hoursPerMonth) * hoursVal;
     return { brut, employer, charges, total };
   }, [netVal, hoursVal]);
 
@@ -200,22 +202,22 @@ function WorkerForm({ chantiers, onAdd }) {
           ))}
         </select>
         <input className="border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom" required />
-        <input
-          type="number"
-          className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={net}
-          onChange={(e) => setNet(e.target.value)}
-          placeholder="Net €/h"
-          required
-        />
-        <input
-          type="number"
-          className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={hours}
-          onChange={(e) => setHours(e.target.value)}
-          placeholder="Heures"
-          required
-        />
+          <input
+            type="number"
+            className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={net}
+            onChange={(e) => setNet(e.target.value)}
+            placeholder="Net €/mois"
+            required
+          />
+          <input
+            type="number"
+            className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={hours}
+            onChange={(e) => setHours(e.target.value)}
+            placeholder="Heures sur chantier"
+            required
+          />
         <button
           disabled={!isValid}
           className={`bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded shadow transition-colors ${!isValid ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -223,14 +225,14 @@ function WorkerForm({ chantiers, onAdd }) {
           Ajouter
         </button>
       </div>
-      {preview && (
-        <p className="text-sm mt-2 text-gray-700">
-          Brut: {preview.brut.toFixed(2)} € - Charges: {preview.charges.toFixed(2)} € - Coût total: {preview.total.toFixed(2)} €
-        </p>
-      )}
-    </form>
-  );
-}
+        {preview && (
+          <p className="text-sm mt-2 text-gray-700">
+            Brut: {preview.brut.toFixed(2)} €/mois - Charges: {preview.charges.toFixed(2)} €/mois - Coût employeur: {preview.employer.toFixed(2)} €/mois - Coût chantier: {preview.total.toFixed(2)} €
+          </p>
+        )}
+      </form>
+    );
+  }
 
 function MaterialForm({ chantiers, onAdd }) {
   const [chantierId, setChantierId] = React.useState('');
@@ -332,7 +334,7 @@ function Chantier({ chantier, onExportPDF, onExportCSV }) {
           {chantier.workers.map((w, i) => (
             <tr key={'w'+i}>
               <td className="p-1">Salarié</td>
-              <td className="p-1">{w.name} - Net: {w.net.toFixed(2)} €/h, Brut: {w.brut.toFixed(2)} €, Charges: {w.charges.toFixed(2)} €, Coût: {w.employer.toFixed(2)} €/h x {w.hours}h</td>
+              <td className="p-1">{w.name} - Net: {w.net.toFixed(2)} €/mois, Brut: {w.brut.toFixed(2)} €, Charges: {w.charges.toFixed(2)} €, Coût employeur: {w.employer.toFixed(2)} €/mois ({(w.employer / hoursPerMonth).toFixed(2)} €/h x {w.hours}h)</td>
               <td className="p-1">{w.total.toFixed(2)}</td>
             </tr>
           ))}
@@ -377,7 +379,7 @@ function App() {
     setChantiers(chantiers.map(c => {
       if (c.id !== chantierId) return c;
       const { brut, employer, charges } = calculateEmployerCost(worker.net);
-      const total = employer * worker.hours;
+      const total = (employer / hoursPerMonth) * worker.hours;
       const newWorker = { ...worker, brut, employer, charges, total };
       return { ...c, workers: [...c.workers, newWorker] };
     }));
