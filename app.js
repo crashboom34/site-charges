@@ -8,6 +8,77 @@ function calculateEmployerCost(net) {
   return { brut, employer, charges };
 }
 
+function InfoPanel() {
+  return (
+    <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded text-sm">
+      <p className="mb-2">
+        Ce calculateur estime les charges salariales ({(chargesSalariales * 100).toFixed(0)}%) et
+        patronales ({(chargesPatronales * 100).toFixed(0)}%) pour chaque salarié afin de
+        déterminer le coût employeur.
+      </p>
+      <p>
+        Les résultats sont indicatifs&nbsp;: adaptez les taux et frais généraux selon
+        votre situation et vos conventions collectives.
+      </p>
+    </div>
+  );
+}
+
+function Overview({ chantiers }) {
+  const canvasRef = React.useRef(null);
+  const chartRef = React.useRef(null);
+
+  const totals = React.useMemo(() => {
+    return chantiers.reduce(
+      (acc, c) => {
+        const worker = c.workers.reduce((s, w) => s + w.total, 0);
+        const materials = c.materials.reduce((s, m) => s + m.total, 0);
+        const overhead = (worker + materials) * (c.overhead / 100);
+        return {
+          worker: acc.worker + worker,
+          materials: acc.materials + materials,
+          overhead: acc.overhead + overhead,
+        };
+      },
+      { worker: 0, materials: 0, overhead: 0 }
+    );
+  }, [chantiers]);
+
+  const total = totals.worker + totals.materials + totals.overhead;
+
+  React.useEffect(() => {
+    const ctx = canvasRef.current.getContext('2d');
+    if (chartRef.current) chartRef.current.destroy();
+    chartRef.current = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Main d\'oeuvre', 'Matériaux', 'Frais généraux'],
+        datasets: [
+          {
+            data: [totals.worker, totals.materials, totals.overhead],
+            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
+          },
+        ],
+      },
+    });
+  }, [totals]);
+
+  if (total === 0) return null;
+
+  return (
+    <div className="mb-4 p-4 bg-white shadow rounded">
+      <h2 className="text-xl font-bold mb-2">Résumé global</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 text-sm">
+        <p>Main d'oeuvre: {totals.worker.toFixed(2)} €</p>
+        <p>Matériaux: {totals.materials.toFixed(2)} €</p>
+        <p>Frais généraux: {totals.overhead.toFixed(2)} €</p>
+        <p className="font-bold">Total: {total.toFixed(2)} €</p>
+      </div>
+      <canvas ref={canvasRef} height="80"></canvas>
+    </div>
+  );
+}
+
 function ChantierForm({ onAdd }) {
   const [name, setName] = React.useState('');
   const [overhead, setOverhead] = React.useState(10);
@@ -257,6 +328,8 @@ function App() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Calculateur de coûts BTP</h1>
+      <InfoPanel />
+      <Overview chantiers={chantiers} />
       <ChantierForm onAdd={addChantier} />
       <WorkerForm chantiers={chantiers} onAdd={addWorker} />
       <MaterialForm chantiers={chantiers} onAdd={addMaterial} />
