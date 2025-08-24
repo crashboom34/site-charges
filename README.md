@@ -2,6 +2,10 @@
 
 Application web one-page permettant de suivre les coûts de main d'œuvre et de matériaux par chantier.
 
+Le site affiche désormais un **résumé global** de l'ensemble des chantiers avec un graphique de répartition
+des charges (main d'œuvre, matériaux, frais généraux) ainsi qu'un encart explicatif sur les taux de charges
+utilisés. Cela offre aux entreprises du BTP une vision synthétique de leurs coûts.
+
 ## Utilisation
 
 1. Ouvrez `index.html` dans votre navigateur.
