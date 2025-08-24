@@ -66,7 +66,7 @@ function Overview({ chantiers }) {
   if (total === 0) return null;
 
   return (
-    <div className="mb-4 p-4 bg-white shadow rounded">
+    <div className="mb-4 p-4 bg-white shadow-lg rounded-lg">
       <h2 className="text-xl font-bold mb-2">Résumé global</h2>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 text-sm">
         <p>Main d'oeuvre: {totals.worker.toFixed(2)} €</p>
@@ -101,13 +101,13 @@ function ChantierForm({ onAdd }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow rounded">
+    <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow-lg rounded-lg">
       <h2 className="text-xl font-bold mb-2">Ajouter un chantier</h2>
       <div className="flex flex-wrap gap-2">
-        <input className="border p-2 flex-1" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom du chantier" required />
-        <input type="number" className="border p-2 w-32" value={overhead} onChange={(e) => setOverhead(e.target.value)} placeholder="Frais généraux %" />
-        <input type="number" className="border p-2 w-32" value={sale} onChange={(e) => setSale(e.target.value)} placeholder="Prix de vente" />
-        <button className="bg-blue-500 text-white px-4 py-2">Ajouter</button>
+        <input className="border border-gray-300 rounded p-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom du chantier" required />
+        <input type="number" className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" value={overhead} onChange={(e) => setOverhead(e.target.value)} placeholder="Frais généraux %" />
+        <input type="number" className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" value={sale} onChange={(e) => setSale(e.target.value)} placeholder="Prix de vente" />
+        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow transition-colors">Ajouter</button>
       </div>
     </form>
   );
@@ -131,19 +131,19 @@ function WorkerForm({ chantiers, onAdd }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow rounded">
+    <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow-lg rounded-lg">
       <h2 className="text-xl font-bold mb-2">Ajouter un salarié</h2>
       <div className="flex flex-wrap gap-2">
-        <select className="border p-2" value={chantierId} onChange={(e) => setChantierId(e.target.value)} required>
+        <select className="border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" value={chantierId} onChange={(e) => setChantierId(e.target.value)} required>
           <option value="">Chantier</option>
           {chantiers.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
-        <input className="border p-2" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom" required />
-        <input type="number" className="border p-2 w-32" value={net} onChange={(e) => setNet(e.target.value)} placeholder="Net €/h" required />
-        <input type="number" className="border p-2 w-32" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="Heures" required />
-        <button className="bg-green-500 text-white px-4 py-2">Ajouter</button>
+        <input className="border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom" required />
+        <input type="number" className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" value={net} onChange={(e) => setNet(e.target.value)} placeholder="Net €/h" required />
+        <input type="number" className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="Heures" required />
+        <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded shadow transition-colors">Ajouter</button>
       </div>
     </form>
   );
@@ -167,19 +167,19 @@ function MaterialForm({ chantiers, onAdd }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow rounded">
+    <form onSubmit={handleSubmit} className="mb-4 p-4 bg-white shadow-lg rounded-lg">
       <h2 className="text-xl font-bold mb-2">Ajouter un matériau</h2>
       <div className="flex flex-wrap gap-2">
-        <select className="border p-2" value={chantierId} onChange={(e) => setChantierId(e.target.value)} required>
+        <select className="border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" value={chantierId} onChange={(e) => setChantierId(e.target.value)} required>
           <option value="">Chantier</option>
           {chantiers.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
-        <input className="border p-2" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom" required />
-        <input type="number" className="border p-2 w-32" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Prix" required />
-        <input type="number" className="border p-2 w-32" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="Quantité" required />
-        <button className="bg-purple-500 text-white px-4 py-2">Ajouter</button>
+        <input className="border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom" required />
+        <input type="number" className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Prix" required />
+        <input type="number" className="border border-gray-300 rounded p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="Quantité" required />
+        <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded shadow transition-colors">Ajouter</button>
       </div>
     </form>
   );
@@ -211,12 +211,12 @@ function Chantier({ chantier, onExportPDF, onExportCSV }) {
   }, [workerCost, materialsCost, total]);
 
   return (
-    <div className="mb-8 p-4 bg-white shadow rounded">
+    <div className="mb-8 p-4 bg-white shadow-lg rounded-lg">
       <h3 className="text-lg font-bold">{chantier.name}</h3>
       <p className="mb-2">Frais généraux: {chantier.overhead}%</p>
-      <table className="w-full mb-4 text-sm">
+      <table className="w-full mb-4 text-sm border border-gray-200 rounded-lg overflow-hidden">
         <thead>
-          <tr className="bg-gray-200"><th className="p-1">Type</th><th className="p-1">Détails</th><th className="p-1">Total €</th></tr>
+          <tr className="bg-gray-100 text-left"><th className="p-1">Type</th><th className="p-1">Détails</th><th className="p-1">Total €</th></tr>
         </thead>
         <tbody>
           {chantier.workers.map((w, i) => (
@@ -245,8 +245,8 @@ function Chantier({ chantier, onExportPDF, onExportCSV }) {
       <div className="mb-2">
         <canvas ref={canvasRef} height="80"></canvas>
       </div>
-      <button onClick={onExportPDF} className="bg-blue-500 text-white px-2 py-1 mr-2">Export PDF</button>
-      <button onClick={onExportCSV} className="bg-yellow-500 text-white px-2 py-1">Export CSV</button>
+      <button onClick={onExportPDF} className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 mr-2 rounded shadow transition-colors">Export PDF</button>
+      <button onClick={onExportCSV} className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded shadow transition-colors">Export CSV</button>
     </div>
   );
 }
@@ -326,8 +326,8 @@ function App() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Calculateur de coûts BTP</h1>
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Calculateur de coûts BTP</h1>
       <InfoPanel />
       <Overview chantiers={chantiers} />
       <ChantierForm onAdd={addChantier} />
