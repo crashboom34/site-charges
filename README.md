@@ -4,7 +4,8 @@ Application web one-page permettant de suivre les coûts de main d'œuvre et de 
 
 Le site affiche désormais un **résumé global** de l'ensemble des chantiers avec un graphique de répartition
 des charges (main d'œuvre, matériaux, frais généraux) ainsi qu'un encart explicatif sur les taux de charges
-utilisés. Cela offre aux entreprises du BTP une vision synthétique de leurs coûts.
+utilisés. L'interface repose sur Tailwind CSS v3 et s'adapte automatiquement au mode sombre du navigateur,
+offrant aux entreprises du BTP une vision synthétique et moderne de leurs coûts.
 
 ## Utilisation
 
