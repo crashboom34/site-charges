@@ -66,15 +66,29 @@ function Overview({ chantiers }) {
   if (total === 0) return null;
 
   return (
-    <div className="mb-4 p-4 bg-white shadow-lg rounded-lg">
-      <h2 className="text-xl font-bold mb-2">Résumé global</h2>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 text-sm">
-        <p>Main d'oeuvre: {totals.worker.toFixed(2)} €</p>
-        <p>Matériaux: {totals.materials.toFixed(2)} €</p>
-        <p>Frais généraux: {totals.overhead.toFixed(2)} €</p>
-        <p className="font-bold">Total: {total.toFixed(2)} €</p>
+    <div className="mb-8 p-6 bg-white shadow-lg rounded-lg">
+      <h2 className="text-2xl font-bold mb-4">Résumé global</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="p-4 bg-blue-50 rounded-lg text-center">
+          <p className="text-sm text-blue-800">Main d'oeuvre</p>
+          <p className="text-lg font-semibold">{totals.worker.toFixed(2)} €</p>
+        </div>
+        <div className="p-4 bg-green-50 rounded-lg text-center">
+          <p className="text-sm text-green-800">Matériaux</p>
+          <p className="text-lg font-semibold">{totals.materials.toFixed(2)} €</p>
+        </div>
+        <div className="p-4 bg-yellow-50 rounded-lg text-center">
+          <p className="text-sm text-yellow-800">Frais généraux</p>
+          <p className="text-lg font-semibold">{totals.overhead.toFixed(2)} €</p>
+        </div>
+        <div className="p-4 bg-gray-100 rounded-lg text-center">
+          <p className="text-sm text-gray-600 font-bold">Total</p>
+          <p className="text-lg font-bold">{total.toFixed(2)} €</p>
+        </div>
       </div>
-      <canvas ref={canvasRef} height="80"></canvas>
+      <div className="flex justify-center">
+        <canvas ref={canvasRef} className="max-w-xs" height="80"></canvas>
+      </div>
     </div>
   );
 }
